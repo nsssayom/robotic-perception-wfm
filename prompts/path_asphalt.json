@@ -1,0 +1,5 @@
+{
+  "inference_type": "text2world",
+  "name": "path_asphalt",
+  "prompt": "Low-angle ground-level camera view positioned 15 centimeters above surface, moving forward at 0.5 meters per second along a bright yellow painted line on clean black asphalt pavement. The yellow line is 10 centimeters wide with crisp edges and fresh paint showing slight texture. The line follows a gentle radius curve bending left with approximately 20-meter turning radius. Camera maintains center position over the line throughout forward motion. Clear sunny day with direct overhead sunlight at noon creating hard shadows. High contrast between bright yellow paint and dark asphalt background. Asphalt shows fine aggregate texture with no cracks or debris. Camera height remains constant showing stable forward motion with yellow line staying centered in frame. Natural camera shake from ground-level movement. Wide-angle lens with 90-degree field of view. The yellow line extends 5 meters ahead in frame and curves smoothly leftward. Sharp focus on line with slight depth of field blur on distant asphalt. Realistic forward motion physics with consistent speed and smooth path following."
+}
