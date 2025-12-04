@@ -95,3 +95,5 @@ The project compares robot behavior across three video types:
 3. **path_mars.mp4**: Extreme domain shift (Mars-like terrain)
 
 Compare corresponding CSV files to evaluate how perception degrades under GenAI video artifacts.
+- @create_comparison_video.py in The generated video the Real-Time Steering Error Plot is overlapping with the previous row. Can you gracefully fix it?
+- @create_comparison_video.py in The generated video the Real-Time Steering Error Plot is overlapping with the previous row. Can you gracefully fix it?

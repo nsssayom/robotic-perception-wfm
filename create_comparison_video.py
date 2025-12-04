@@ -23,30 +23,31 @@ COLORS = {
 
 
 def draw_metric_row(canvas, x, y, width, label, value, color):
-    """Draw a single metric row with proper text spacing"""
-    row_height = 50  # Increased from 40 to prevent overlap
-    padding = 12
-
-    # Background
+    """Draw a single metric row with modern design and proper spacing"""
+    row_height = 65  # Generous height for breathing room
+    padding_left = 16
+    padding_top = 20
+    
+    # Background with subtle shadow effect
     cv2.rectangle(canvas, (x, y), (x + width, y + row_height),
                  COLORS['card_bg'], -1)
 
-    # Border
+    # Border with rounded corners effect (simulated with thicker border)
     cv2.rectangle(canvas, (x, y), (x + width, y + row_height),
-                 COLORS['border'], 1)
+                 COLORS['border'], 2)
 
-    # Left accent bar
-    cv2.rectangle(canvas, (x, y), (x + 4, y + row_height), color, -1)
+    # Left accent bar (thicker and more prominent)
+    cv2.rectangle(canvas, (x, y), (x + 6, y + row_height), color, -1)
 
-    # Label - small, gray, at top with more spacing
-    label_y = y + 18  # Increased from 16 for more top spacing
-    cv2.putText(canvas, label, (x + padding, label_y),
-               cv2.FONT_HERSHEY_SIMPLEX, 0.32, (120, 120, 120), 1, cv2.LINE_AA)
+    # Label - modern font, medium size, proper weight
+    label_y = y + padding_top
+    cv2.putText(canvas, label, (x + padding_left, label_y),
+               cv2.FONT_HERSHEY_DUPLEX, 0.45, (100, 100, 100), 1, cv2.LINE_AA)
 
-    # Value - larger, bold, at bottom with more spacing from label
-    value_y = y + row_height - 12  # Increased spacing from bottom
-    cv2.putText(canvas, value, (x + padding, value_y),
-               cv2.FONT_HERSHEY_SIMPLEX, 0.6, COLORS['text_dark'], 2, cv2.LINE_AA)
+    # Value - larger, bold, clear separation from label
+    value_y = y + padding_top + 30  # 30px below label for clear separation
+    cv2.putText(canvas, value, (x + padding_left, value_y),
+               cv2.FONT_HERSHEY_DUPLEX, 0.75, COLORS['text_dark'], 2, cv2.LINE_AA)
 
     return row_height
 
@@ -91,6 +92,77 @@ def process_frame_with_detection(frame, scenario_data, frame_idx):
     return frame, error, motor_l, motor_r, sim_time
 
 
+def draw_live_error_plot(canvas, x, y, width, height, error_history, colors, labels, frame_idx):
+    """Draw a live error plot showing recent history"""
+
+    # Plot background
+    cv2.rectangle(canvas, (x, y), (x + width, y + height), COLORS['card_bg'], -1)
+    cv2.rectangle(canvas, (x, y), (x + width, y + height), COLORS['border'], 2)
+
+    # Title
+    cv2.putText(canvas, "Real-Time Steering Error", (x + 15, y + 25),
+               cv2.FONT_HERSHEY_SIMPLEX, 0.7, COLORS['text_dark'], 2, cv2.LINE_AA)
+
+    # Plot area
+    plot_x = x + 40
+    plot_y = y + 50
+    plot_w = width - 60
+    plot_h = height - 80
+
+    # Draw axes
+    cv2.line(canvas, (plot_x, plot_y + plot_h), (plot_x + plot_w, plot_y + plot_h),
+            COLORS['text_dark'], 2)  # X-axis
+    cv2.line(canvas, (plot_x, plot_y), (plot_x, plot_y + plot_h),
+            COLORS['text_dark'], 2)  # Y-axis
+
+    # Draw zero line
+    zero_y = plot_y + plot_h // 2
+    cv2.line(canvas, (plot_x, zero_y), (plot_x + plot_w, zero_y),
+            (150, 150, 150), 1, cv2.LINE_AA)
+
+    # Y-axis labels
+    cv2.putText(canvas, "+", (plot_x - 25, plot_y + 10),
+               cv2.FONT_HERSHEY_SIMPLEX, 0.4, COLORS['text_dark'], 1, cv2.LINE_AA)
+    cv2.putText(canvas, "0", (plot_x - 25, zero_y + 5),
+               cv2.FONT_HERSHEY_SIMPLEX, 0.4, COLORS['text_dark'], 1, cv2.LINE_AA)
+    cv2.putText(canvas, "-", (plot_x - 25, plot_y + plot_h - 5),
+               cv2.FONT_HERSHEY_SIMPLEX, 0.4, COLORS['text_dark'], 1, cv2.LINE_AA)
+
+    # Plot error history for each scenario
+    window_size = 50  # Show last 50 frames
+
+    for idx, (history, color, label) in enumerate(zip(error_history, colors, labels)):
+        if len(history) < 2:
+            continue
+
+        # Get recent data
+        recent_data = history[-window_size:] if len(history) > window_size else history
+
+        # Normalize to plot area
+        max_error = 0.15  # Scale for error values
+
+        points = []
+        for i, err in enumerate(recent_data):
+            px = plot_x + int((i / window_size) * plot_w)
+            # Flip Y axis (positive errors go up)
+            py = zero_y - int((err / max_error) * (plot_h // 2))
+            py = max(plot_y, min(plot_y + plot_h, py))  # Clamp
+            points.append((px, py))
+
+        # Draw line
+        for i in range(len(points) - 1):
+            cv2.line(canvas, points[i], points[i + 1], color, 2, cv2.LINE_AA)
+
+    # Legend
+    legend_x = x + width - 180
+    legend_y = y + 50
+    for idx, (color, label) in enumerate(zip(colors, labels)):
+        ly = legend_y + idx * 25
+        cv2.rectangle(canvas, (legend_x, ly), (legend_x + 20, ly + 12), color, -1)
+        cv2.putText(canvas, label, (legend_x + 28, ly + 10),
+                   cv2.FONT_HERSHEY_SIMPLEX, 0.4, COLORS['text_dark'], 1, cv2.LINE_AA)
+
+
 def create_side_by_side_comparison_video():
     """Create 3-column video with metrics below"""
 
@@ -119,6 +191,9 @@ def create_side_by_side_comparison_video():
     ]
 
     print("Loading video captures and data...")
+
+    # Initialize error history tracking
+    error_history = [[], [], []]  # One for each scenario
 
     # Open all videos
     caps = []
@@ -154,9 +229,9 @@ def create_side_by_side_comparison_video():
     # Layout calculation
     header_height = 80
     footer_height = 60
-    hud_height = 240  # Increased from 200 to accommodate taller metric rows
+    hud_height = 310  # Increased to accommodate taller metric rows with proper spacing
     margin = 15
-    gap = 10
+    gap = 12  # Slightly wider gap between video columns
 
     # Calculate video dimensions
     available_height = output_height - header_height - footer_height - hud_height - 2 * margin
@@ -219,6 +294,9 @@ def create_side_by_side_comparison_video():
             frame, error, motor_l, motor_r, sim_time = process_frame_with_detection(
                 frame, df, frame_idx)
 
+            # Track error history for plotting
+            error_history[idx].append(error)
+
             # Calculate X position (3 columns)
             video_x = margin + idx * (video_width + gap)
 
@@ -240,32 +318,45 @@ def create_side_by_side_comparison_video():
                        0.75, COLORS['text_light'], 2, cv2.LINE_AA)
 
             # === HUD METRICS BELOW VIDEO ===
-            hud_y = video_y + video_height + 12
-            row_gap = 6  # Increased gap between rows from 4 to 6
+            hud_y = video_y + video_height + 15
+            row_gap = 8  # Comfortable gap between rows
 
             # Metric 1: Steering Error
             metric_height = draw_metric_row(canvas, video_x, hud_y,
-                          video_width, "STEERING ERROR",
+                          video_width, "Steering Error",
                           f"{error:+.4f}", COLORS[scenario['key']])
 
             # Metric 2: Left Motor
             hud_y += metric_height + row_gap
             draw_metric_row(canvas, video_x, hud_y,
-                          video_width, "LEFT MOTOR",
+                          video_width, "Left Motor",
                           f"{motor_l:.2f} rad/s", COLORS['baseline'])
 
             # Metric 3: Right Motor
             hud_y += metric_height + row_gap
             draw_metric_row(canvas, video_x, hud_y,
-                          video_width, "RIGHT MOTOR",
+                          video_width, "Right Motor",
                           f"{motor_r:.2f} rad/s", COLORS['glare'])
 
             # Metric 4: Time and Frame
             hud_y += metric_height + row_gap
             draw_metric_row(canvas, video_x, hud_y,
-                          video_width, "TIME / FRAME",
-                          f"{sim_time:.2f}s | {frame_idx + 1}/{total_frames}",
+                          video_width, "Time | Frame",
+                          f"{sim_time:.2f}s  |  Frame {frame_idx + 1}/{total_frames}",
                           COLORS['accent'])
+
+        # === LIVE ERROR PLOT (in the empty space) ===
+        plot_x = margin
+        # Calculate proper position: video_y + video_height + initial_gap + (metric_height + row_gap) * 4 + extra_spacing
+        plot_y = video_y + video_height + 15 + (65 + 8) * 4 + 35  # Below metrics with generous spacing
+        plot_width = output_width - 2 * margin
+        plot_height = 180
+
+        scenario_colors = [COLORS['baseline'], COLORS['glare'], COLORS['mars']]
+        scenario_labels = ['Baseline', 'Glare', 'Mars']
+
+        draw_live_error_plot(canvas, plot_x, plot_y, plot_width, plot_height,
+                           error_history, scenario_colors, scenario_labels, frame_idx)
 
         # === FOOTER WITH PROGRESS ===
         footer_y = output_height - footer_height

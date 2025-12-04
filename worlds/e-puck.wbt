@@ -1,0 +1,77 @@
+#VRML_SIM R2025a utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/floors/protos/RectangleArena.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/factory/containers/protos/WoodenBox.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/gctronic/e-puck/protos/E-puck.proto"
+
+WorldInfo {
+  info [
+    "The model of the E-puck robot"
+  ]
+  title "E-puck simulation"
+}
+Viewpoint {
+  orientation -0.6500803252254168 0.47003484275783397 0.5970450714547726 2.3265531597852473
+  position 0.6618402072208874 0.46301736432846974 3.745095538174037
+  follow "e-puck"
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+RectangleArena {
+  floorSize 2 2
+}
+WoodenBox {
+  translation -0.683174 0.2 0.05
+  rotation 0 0 1 0.5
+  size 0.1 0.1 0.1
+}
+WoodenBox {
+  translation 0.35 0.75 0.05
+  rotation 0 0 1 4.96782
+  name "wooden box(1)"
+  size 0.1 0.1 0.1
+}
+WoodenBox {
+  translation -0.35471 -0.5 0.05
+  rotation 0 0 1 5.36782
+  name "wooden box(2)"
+  size 0.1 0.1 0.1
+}
+WoodenBox {
+  translation -0.720503 -0.148728 0.05
+  rotation 0 0 -1 -1.964425307179586
+  name "wooden box(3)"
+  size 0.1 0.1 0.1
+}
+WoodenBox {
+  translation -0.66 0.65 0.05
+  rotation 0 0 1 5.36782
+  name "wooden box(4)"
+  size 0.1 0.1 0.1
+}
+E-puck {
+  hidden position_0_0 3625.8852634484024
+  hidden position_0_1 3410.8612103860564
+  hidden linearVelocity_0 5.997419897145213e-05 -8.118120170473479e-06 3.0312508177602166e-08
+  hidden angularVelocity_0 0.000541197332586201 0.003998201040446504 1.1139733525658535e-11
+  hidden rotation_1 0 -1 0 5.7958441013985995
+  hidden linearVelocity_1 7.996445376792869e-05 -1.0824005259798309e-05 1.7202950172738708e-11
+  hidden angularVelocity_1 0.0005411973356146317 0.003998201058381955 2.4560090721574897e-10
+  hidden rotation_2 0 1 0 5.3747738947205566
+  hidden linearVelocity_2 7.996445329576657e-05 -1.0824005192782865e-05 1.713829077981378e-11
+  hidden angularVelocity_2 0.0005411973348629413 0.003998201058453306 -2.233214602848046e-10
+  translation -0.43153134964507 0.024070204168878895 -6.394451499536907e-05
+  rotation 0.000675374091283843 0.01002421542751365 -0.9999495282137492 0.13454924400120377
+  controller "vision_controller"
+  turretSlot [
+    Camera {
+      name "camera(1)"
+      width 640
+      height 480
+    }
+  ]
+}
